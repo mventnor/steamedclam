@@ -1,0 +1,43 @@
+#!/bin/bash
+# steamedclam — while running, the Mac won't sleep when the lid is closed.
+# On exit (Ctrl+C, SIGTERM, SIGHUP, normal exit) lid-close sleep is
+# re-enabled. Must be run as root so pmset doesn't reprompt.
+
+set -uo pipefail
+
+PROG="$(basename "$0")"
+
+if [[ $EUID -ne 0 ]]; then
+  echo "$PROG: must be run as root. Try: sudo $PROG" >&2
+  exit 1
+fi
+
+restored=0
+restore() {
+  if [[ $restored -eq 1 ]]; then
+    return
+  fi
+  restored=1
+  trap - INT TERM HUP EXIT
+  echo
+  echo "$PROG: re-enabling lid-close sleep"
+  pmset -a disablesleep 0 || \
+    echo "$PROG: warning, failed to re-enable sleep" >&2
+}
+
+trap restore INT TERM HUP EXIT
+
+echo "$PROG: disabling lid-close sleep"
+if ! pmset -a disablesleep 1; then
+  echo "$PROG: failed to disable sleep" >&2
+  exit 1
+fi
+
+echo "$PROG: lid-close sleep disabled. Press Ctrl+C to restore and exit."
+
+# Idle in the foreground. `sleep` in a child + `wait` lets traps fire
+# immediately on signal delivery (a bare `sleep infinity` won't on bash 3.2).
+while true; do
+  sleep 86400 &
+  wait $! || true
+done

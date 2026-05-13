@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor / IDE swap & state
+*.swp
+*.swo
+*.swn
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Logs & temp files
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.git-credentials
+.git-credentials-*
+.netrc

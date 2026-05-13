@@ -18,14 +18,19 @@ restore() {
     return
   fi
   restored=1
-  trap - INT TERM HUP EXIT
   echo
   echo "$PROG: re-enabling lid-close sleep"
   pmset -a disablesleep 0 || \
     echo "$PROG: warning, failed to re-enable sleep" >&2
 }
 
-trap restore INT TERM HUP EXIT
+# Signals: restore, then exit with the conventional 128+signo code so the
+# script actually terminates instead of looping back into `wait`.
+trap 'restore; exit 130' INT
+trap 'restore; exit 143' TERM
+trap 'restore; exit 129' HUP
+# Normal exit (or `exit 1` paths above): just restore, don't re-exit.
+trap restore EXIT
 
 echo "$PROG: disabling lid-close sleep"
 if ! pmset -a disablesleep 1; then
